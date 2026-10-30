@@ -1,3 +1,5 @@
+![Banner](banner.png)
+
 # File Diff Compare
 
 ## Overview
