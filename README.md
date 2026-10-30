@@ -24,8 +24,8 @@ file-diff-compare [options] file1 file2
 ## Options
 
 * `-h`, `--help`: Show this help message and exit
-* `-v`, `--verbose`: Enable verbose output
-* `-q`, `--quiet`: Disable all output except errors
+* `--ignore-comments`: Ignore comments when comparing
+* `--ignore-whitespace`: Ignore whitespace when comparing
 
 ## Usage Examples
 
@@ -38,19 +38,19 @@ file-diff-compare file1.txt file2.txt
 ### Example 2: Compare two files and ignore whitespace
 
 ```
-file-diff-compare -w file1.txt file2.txt
+file-diff-compare --ignore-whitespace file1.txt file2.txt
 ```
 
 ### Example 3: Compare two files and ignore comments
 
 ```
-file-diff-compare -c file1.txt file2.txt
+file-diff-compare --ignore-comments file1.txt file2.txt
 ```
 
 ### Example 4: Compare two files and ignore both whitespace and comments
 
 ```
-file-diff-compare -w -c file1.txt file2.txt
+file-diff-compare --ignore-whitespace --ignore-comments file1.txt file2.txt
 ```
 
 ## Security Warnings
