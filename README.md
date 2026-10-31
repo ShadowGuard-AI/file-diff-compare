@@ -4,7 +4,7 @@
 
 ## Overview
 
-File Diff Compare is a command-line tool for comparing two files for differences, ignoring whitespace and comments. The tool is primarily focused on file operations and analysis.
+File Diff Compare is a command-line tool for comparing two files for differences, with options to ignore whitespace and comments. The tool is primarily focused on file operations and analysis.
 
 ## Installation
 
@@ -26,8 +26,14 @@ file-diff-compare [options] file1 file2
 ## Options
 
 * `-h`, `--help`: Show this help message and exit
-* `--ignore-comments`: Ignore comments when comparing
-* `--ignore-whitespace`: Ignore whitespace when comparing
+* `--ignore-comments`: Ignore comments when comparing: full line comments and trailing comments, in both the `#` and `//` styles
+* `--ignore-whitespace`: Ignore leading and trailing whitespace on each line when comparing. Without this flag, lines are compared as they are, apart from the line ending itself.
+
+## Exit codes
+
+* `0`: the files are identical
+* `1`: the files differ
+* `2`: a file could not be read; the reason is logged
 
 ## Usage Examples
 

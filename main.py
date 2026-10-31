@@ -1,5 +1,7 @@
 import argparse
 import logging
+import re
+import sys
 from pathlib import Path
 
 
@@ -19,7 +21,7 @@ def setup_argparse():
         argparse.ArgumentParser: Configured argument parser.
     """
     parser = argparse.ArgumentParser(
-        description="Compares two files for differences, ignoring whitespace and comments."
+        description="Compares two files for differences, with options to ignore whitespace and comments. Exit codes: 0 when the files are identical, 1 when they differ, 2 when a file cannot be read."
     )
     parser.add_argument(
         "file1",
@@ -34,39 +36,34 @@ def setup_argparse():
     parser.add_argument(
         "--ignore-comments",
         action="store_true",
-        help="Ignore comments during comparison.",
+        help="Ignore comments during comparison: full line and trailing comments in the # and // styles.",
     )
     parser.add_argument(
         "--ignore-whitespace",
         action="store_true",
-        help="Ignore differences in whitespace.",
+        help="Ignore leading and trailing whitespace on each line during comparison.",
     )
     return parser
 
 
 def read_file(file_path, ignore_comments=False, ignore_whitespace=False):
-    """
-    Reads a file with options to ignore comments and/or whitespace.
-
-    Args:
-        file_path (str): Path to the file to read.
-        ignore_comments (bool): If True, ignore lines starting with '#'.
-        ignore_whitespace (bool): If True, strip all whitespace from lines.
-
-    Returns:
-        list: List of processed lines from the file.
-    """
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             lines = file.readlines()
 
         processed_lines = []
         for line in lines:
-            if ignore_comments and line.strip().startswith("#"):
-                continue
+            line = line.rstrip("\r\n")
+            if ignore_comments:
+                stripped = line.lstrip()
+                if stripped.startswith("#") or stripped.startswith("//"):
+                    continue
+                match = re.search(r"\s+(#|//)", line)
+                if match:
+                    line = line[:match.start()].rstrip()
             if ignore_whitespace:
-                line = "".join(line.split())
-            processed_lines.append(line.strip())
+                line = line.strip()
+            processed_lines.append(line)
 
         return processed_lines
     except FileNotFoundError:
@@ -127,10 +124,13 @@ def main():
 
         if are_files_identical:
             logging.info("Files are identical.")
+            sys.exit(0)
         else:
             logging.info("Files are different.")
+            sys.exit(1)
     except Exception as e:
         logging.error(f"An error occurred during file comparison: {e}")
+        sys.exit(2)
 
 
 if __name__ == "__main__":
