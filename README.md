@@ -10,7 +10,7 @@ File Diff Compare is a command-line tool for comparing two files for differences
 
 1. Clone the repository:
 ```
-git clone https://github.com/ShadowStrikeHQ/file-diff-compare.git
+git clone https://github.com/ShadowGuard-AI/file-diff-compare.git
 ```
 2. Install the required dependencies:
 ```
