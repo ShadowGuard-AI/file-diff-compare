@@ -48,19 +48,35 @@ def setup_argparse():
 
 def read_file(file_path, ignore_comments=False, ignore_whitespace=False):
     try:
+        # Files are read as strict utf-8. A binary file or one in another
+        # encoding raises here and lands in main's error exit, code 2, which
+        # means cannot compare, not different. The three exit codes are the
+        # contract scripts around this tool rely on.
         with open(file_path, "r", encoding="utf-8") as file:
             lines = file.readlines()
 
         processed_lines = []
         for line in lines:
+            # Only the line ending characters come off here. A CRLF file and an LF
+            # file therefore compare equal line by line, while trailing spaces stay
+            # significant unless --ignore-whitespace was given.
             line = line.rstrip("\r\n")
             if ignore_comments:
                 stripped = line.lstrip()
                 if stripped.startswith("#") or stripped.startswith("//"):
                     continue
+                # A trailing comment has to be preceded by whitespace. That requirement
+                # is what keeps a URL or a string containing // or # intact in the
+                # common cases, but it is still blind to strings: quoted text with a
+                # space before // is cut there anyway. Full line comments were handled
+                # just above, so this branch only ever shortens a code line.
                 match = re.search(r"\s+(#|//)", line)
                 if match:
                     line = line[:match.start()].rstrip()
+            # Comment handling runs before the whitespace strip, in that order, so
+            # the comment search sees the original spacing it depends on. The
+            # whitespace option then strips only the ends of what remains; spacing
+            # inside a line always counts.
             if ignore_whitespace:
                 line = line.strip()
             processed_lines.append(line)
@@ -93,6 +109,9 @@ def compare_files(file1, file2, ignore_comments=False, ignore_whitespace=False):
     if lines1 == lines2:
         return True
     else:
+        # Equality is decided on the whole processed lists at once. This diff
+        # is only a report built afterwards: positional pairs first, then the
+        # tail of whichever file ran longer, labelled as extra lines.
         diff = [f"Line {i + 1}: {line1} != {line2}" for i, (line1, line2) in enumerate(zip(lines1, lines2)) if line1 != line2]
         diff.extend([f"Extra line in file1: {line}" for line in lines1[len(lines2):]])
         diff.extend([f"Extra line in file2: {line}" for line in lines2[len(lines1):]])
